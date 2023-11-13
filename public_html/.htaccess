@@ -1,0 +1,1 @@
+RewriteRule ^([A-Za-z0-9_:\?\/]+)$ /index.php?data=$1 [L]
