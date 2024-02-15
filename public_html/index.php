@@ -15,11 +15,43 @@ if ($_SERVER['HTTP_X_API_TOKEN'] === $token && $_REQUEST['data']) {
     $notification = (int)file_get_contents(__DIR__ . '/../tg_settings.pause');
     if ($value === 'DOOR') {
         $time = filemtime($_SERVER['DOCUMENT_ROOT'] . '/../time_door');
-       // if (time() - $time > 60)
-        {
-            $text = 'Дверь открыта' . ((time() - $time > 60) ?' ':' 2');
+        file_put_contents($_SERVER['DOCUMENT_ROOT'] . '/../time_door', date("Y-m-d H:i:s\n"));
+        if (time() - $time > 60) {
+            $text = 'Дверь открыта';
             $chat_id = $notification ? $chatId : $adminId;
-            file_put_contents($_SERVER['DOCUMENT_ROOT'] . '/../time_door', date("Y-m-d H:i:s\n"));
+            {
+                $NNpath = __DIR__ . '/img/';
+                $NNcurl = curl_init();
+                $NNfile = array_slice(scandir($NNpath, SCANDIR_SORT_DESCENDING), 0, 1)[0];
+                $time = filemtime($NNpath.DIRECTORY_SEPARATOR.$NNfile);
+                $actual = (time() - $time ) < 20;
+                $NNtext = "Дверь открыта ";
+                $NNname = preg_replace('#(CAPTURE_)(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})\.jpg#', '$5:$6:$7', $NNfile);
+                if ($actual) {
+                    $NNtext .= $NNname . "\n<a href='https://control.nemin.ru/img/{$NNfile}'>&#8205;</a>";
+                } else {
+                    $NNtext .= "\n...";
+                }
+                $NNdata = [
+                    'chat_id' => $chatIdTest,
+                    'parse_mode' => 'html',
+                    'text' => $NNtext,
+                ];
+                curl_setopt_array($NNcurl, [
+                    CURLOPT_URL => $urlBot . $botToken . '/sendMessage',
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_CUSTOMREQUEST => 'POST',
+                    CURLOPT_POSTFIELDS => http_build_query($NNdata),
+                ]);
+                $result = curl_exec($NNcurl);
+
+                $result = json_decode($result,true);
+                $id = $result['result']['message_id'];
+                if (!$actual && $id) {
+                    $command = 'php ../wait_photo.php %s > /dev/null &';
+                    exec(sprintf($command, $id));
+                }
+            }
         }
     } elseif ($value === 'RING') {
         $text = 'Звонят в дверь';
@@ -35,7 +67,7 @@ if ($_SERVER['HTTP_X_API_TOKEN'] === $token && $_REQUEST['data']) {
             'text' => $text,
             //  'parse_mode' => 'HTML',
             'chat_id' => $chat_id,
-            'disable_notification' => (bool)$notification
+            'disable_notification' => ! (bool) $notification
         ];
         $type = "sendMessage";
 
@@ -60,20 +92,6 @@ if ($_SERVER['HTTP_X_API_TOKEN'] === $token && $_REQUEST['data']) {
         curl_close($curl);
     }
 
-    file_put_contents(
-        $_SERVER['DOCUMENT_ROOT'] . '/../log.txt',
-        print_r(
-            [
-                'SERVER' => $_SERVER,
-                'REQUEST' => $_REQUEST,
-                'input' => file_get_contents('php://input'),
-                'response' => $response
-            ],
-            1
-        ),
-        FILE_APPEND
-    );
-    //echo $_SERVER['HTTP_USER_AGENT'] . " - ".rand(1111,9999);
 } else {
     header("HTTP/1.0 402 Not Found");
     echo "<h1>404</h1><p>No Found</p>";
