@@ -105,16 +105,13 @@ if ($input['message']['chat']['id'] == $adminId) {
     if (preg_match("#(\d{2,3})[\/\-](\d{2,3})[\/\-](\d{2,3})#", $input['message']['text'], $match) !== false) {
         if (count($match) === 4) {
             array_shift($match);
-            $err = $match[0] > 300 || $match[0] < 50;
-            $err = $err || $match[1] < 50 || $match[1] > 200;
-            $err = $err || $match[2] < 40 || $match[2] > 200;
-            if (!$err) {
+           {
                 $value = implode("/", $match);
                 $url = $urlBot . $botToken;
                 $data = [
                     'text' => "Сохранено давление: " . $value,
                     'chat_id' => $input['message']['chat']['id'],
-                    //'parse_mode' => 'html'
+                    'disable_notification' => true,
                 ];
                 $type = "sendMessage";
                 $curl = curl_init();
