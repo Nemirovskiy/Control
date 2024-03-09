@@ -68,7 +68,7 @@ $timeWokeUp->add(new \DateInterval('PT3600S'));
 
 $d = new DateTime();
 $d->setTimezone(new DateTimeZone('Europe/Moscow'));
-if ($d->format('m-d_H:i') === $timeWokeUp->format('m-d_H:i')) {
+/*if ($d->format('m-d_H:i') === $timeWokeUp->format('m-d_H:i')) {
     $url = $urlBot . $botToken;
     $data = [
         'text' => "Утренний контроль:\n * давление\n * утренние таблетки\n * стакан воды",
@@ -84,6 +84,7 @@ if ($d->format('m-d_H:i') === $timeWokeUp->format('m-d_H:i')) {
     ]);
     $response = curl_exec($curl);
 }
+*/
 
 if ($d->format('H:i') === '20:15') {
     $url = $urlBot . $botToken;
@@ -129,6 +130,7 @@ if ($countRemove) {
 
 $files = array_slice(scandir($path, SCANDIR_SORT_DESCENDING), 0, 1);
 
+/*
 foreach ($files as $file) {
     if (substr(strtolower($file), -4) === '.jpg') {
         $now = (new DateTime())->format('Y-m-d');
@@ -155,3 +157,4 @@ foreach ($files as $file) {
         }
     }
 }
+*/
