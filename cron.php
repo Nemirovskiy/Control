@@ -53,7 +53,7 @@ foreach ($files as $file) {
         $interval->invert = 1;
         $now->add($interval);
         // CAPTURE_20231126
-        $tfile = substr($file, 8, 8);
+        $tfile = substr($file, 0, 8);
         $fnow = DateTime::createFromFormat('Ymd', $tfile);
         if ($fnow->getTimestamp() < $now->getTimestamp()) {
             if (unlink($path . $file)) {
@@ -133,7 +133,7 @@ foreach ($files as $file) {
     if (substr(strtolower($file), -4) === '.jpg') {
         $now = (new DateTime())->format('Y-m-d');
         // CAPTURE_20231205_215933
-        $tfile = substr($file, 8, 15);
+        $tfile = substr($file, 0, 15);
         $fnow = DateTime::createFromFormat('Ymd_His', $tfile);
         $lock = file_get_contents('morning_woke_up.lock');
         if ($lock !== $fnow->format('Y-m-d') && $fnow->format('H') >= 7) {
