@@ -19,39 +19,8 @@ if ($_SERVER['HTTP_X_API_TOKEN'] === $token && $_REQUEST['data']) {
         if (time() - $time > 60) {
             $text = 'Дверь открыта';
             $chat_id = $notification ? $chatId : $adminId;
-            {
-                $NNpath = __DIR__ . '/img/';
-                $NNcurl = curl_init();
-                $NNfile = array_slice(scandir($NNpath, SCANDIR_SORT_DESCENDING), 0, 1)[0];
-                $time = filemtime($NNpath.DIRECTORY_SEPARATOR.$NNfile);
-                $actual = (time() - $time ) < 20;
-                $NNtext = "Дверь открыта ";
-                $NNname = preg_replace('#(CAPTURE_)(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})\.jpg#', '$5:$6:$7', $NNfile);
-                if ($actual) {
-                    $NNtext .= $NNname . "\n<a href='https://control.nemin.ru/img/{$NNfile}'>&#8205;</a>";
-                } else {
-                    $NNtext .= "\n...";
-                }
-                $NNdata = [
-                    'chat_id' => $chatIdTest,
-                    'parse_mode' => 'html',
-                    'text' => $NNtext,
-                ];
-                curl_setopt_array($NNcurl, [
-                    CURLOPT_URL => $urlBot . $botToken . '/sendMessage',
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS => http_build_query($NNdata),
-                ]);
-                $result = curl_exec($NNcurl);
-
-                $result = json_decode($result,true);
-                $id = $result['result']['message_id'];
-                if (!$actual && $id) {
-                    $command = 'php ../wait_photo.php %s > /dev/null &';
-                    exec(sprintf($command, $id));
-                }
-            }
+            
+            exec('php ../wait_photo.php > /dev/null &');
         }
     } elseif ($value === 'RING') {
         $text = 'Звонят в дверь';
@@ -93,6 +62,6 @@ if ($_SERVER['HTTP_X_API_TOKEN'] === $token && $_REQUEST['data']) {
     }
 
 } else {
-    header("HTTP/1.0 402 Not Found");
+    header("HTTP/1.0 404 Not Found");
     echo "<h1>404</h1><p>No Found</p>";
 }
